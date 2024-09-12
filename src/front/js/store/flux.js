@@ -16,20 +16,67 @@ const getState = ({ getStore, getActions, setStore }) => {
 			]
 		},
 		actions: {
+			signUp: async (email, password) => {
+				try {
+					const response = await fetch(process.env.BACKEND_URL + '/api/sign-up', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							email: email,
+							password: password
+						})
+					});
+
+					let data = await response.json();
+					console.log(data);
+					return data;
+				} catch (error) {
+					console.log("there was an error on signup", error);
+					throw error
+				}
+			},
+			login: async (email, password) => {
+				try {
+					const response = await fetch(process.env.BACKEND_URL + '/api/login', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							email: email,
+							password: password
+						})
+					});
+					if (response.status===200){
+						let data = await response.json();
+						return true
+					} else if(response.status===401){
+						return false
+					} else {
+						console.log('unexpected error during login', response.status)
+						return false
+					}
+				} catch(error){
+					console.log('unexpected error during login', error)
+						return false
+				}
+			},
 			// Use getActions to call a function within a fuction
 			exampleFunction: () => {
 				getActions().changeColor(0, "green");
 			},
 
 			getMessage: async () => {
-				try{
+				try {
 					// fetching data from the backend
 					const resp = await fetch(process.env.BACKEND_URL + "/api/hello")
 					const data = await resp.json()
 					setStore({ message: data.message })
 					// don't forget to return something, that is how the async resolves
 					return data;
-				}catch(error){
+				} catch (error) {
 					console.log("Error loading message from backend", error)
 				}
 			},
